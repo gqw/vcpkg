@@ -17,11 +17,12 @@ if(VCPKG_TARGET_IS_WINDOWS)
 endif()
 
 vcpkg_check_features(OUT_FEATURE_OPTIONS FEATURE_OPTIONS
-    deprfun     deprecated-functions
-    examples    build_examples
-    python      python-bindings
-    test        build_tests
-    tools       build_tools
+	FEATURES
+		deprfun     deprecated-functions
+		examples    build_examples
+		python      python-bindings
+		test        build_tests
+		tools       build_tools
 )
 
 # Note: the python feature currently requires `python3-dev` and `python3-setuptools` installed on the system
@@ -37,8 +38,8 @@ endif()
 vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO arvidn/libtorrent
-    REF e3f2b016dcd37a9a6e8a94006c7befcf2cb7bfac #v1.2.12
-    SHA512 5d58ce1d942d2bbcc423a307e70cfb714b102e029c50c7e214e6b46b7a1311564c7b094d895d99f400ecdb0272b66c94c2f21fa414d4565582784f1dc5c7ec97
+    REF e00a152678fbce7903aa42bbd93e8b812f171928 #v1.2.13
+    SHA512 5256777ac6f8805a2ded1ecfa12e335f3f216594783208ddbc2d2230420f66da675029ff82b1fc0d56c82402015668b5ad1a24afcc23d07043436c75c05de110
     HEAD_REF RC_1_2
     PATCHES
         ${ICONV_PATCH}

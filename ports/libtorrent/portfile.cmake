@@ -35,16 +35,39 @@ if("python" IN_LIST FEATURES)
     string(REGEX REPLACE ".*(python)([0-9])([0-9]+).*" "\\1\\2\\3" _boost-python-module-name "${BOOST_PYTHON_LIB}")
 endif()
 
-vcpkg_from_github(
-    OUT_SOURCE_PATH SOURCE_PATH
-    REPO arvidn/libtorrent
-    REF e00a152678fbce7903aa42bbd93e8b812f171928 #v1.2.13
-    SHA512 5256777ac6f8805a2ded1ecfa12e335f3f216594783208ddbc2d2230420f66da675029ff82b1fc0d56c82402015668b5ad1a24afcc23d07043436c75c05de110
-    HEAD_REF RC_1_2
-    PATCHES
-        ${ICONV_PATCH}
-        fix-AppleClang-test.patch
-)
+message("clone begin...***************************************")
+
+set(GIT_URL "https://github.com/arvidn/libtorrent.git")
+set(GIT_REV "af7a96c1df47fcc8fbe0d791c223b0ab8a7d2125")
+
+set(SOURCE_PATH ${CURRENT_BUILDTREES_DIR}/src/${PORT})
+
+
+if(NOT EXISTS "${SOURCE_PATH}/.git")
+	message(STATUS "Cloning and fetching submodules ${GIT_URL} ${SOURCE_PATH}")
+	vcpkg_execute_required_process(
+	  COMMAND ${GIT} clone --recurse-submodules ${GIT_URL} ${SOURCE_PATH}
+	  WORKING_DIRECTORY ${SOURCE_PATH}
+	  LOGNAME clone
+	)
+
+	message(STATUS "Checkout revision ${GIT_REV}")
+	vcpkg_execute_required_process(
+	  COMMAND ${GIT} checkout ${GIT_REV}
+	  WORKING_DIRECTORY ${SOURCE_PATH}
+	  LOGNAME checkout
+	)
+endif()
+
+message("clone end!!!***************************************")
+
+# vcpkg_from_github(
+    # OUT_SOURCE_PATH SOURCE_PATH
+    # REPO arvidn/libtorrent
+    # REF af7a96c1df47fcc8fbe0d791c223b0ab8a7d2125 #v1.2.12
+    # SHA512 1c1a73f065e6c726ef6b87f6be139abb96bdb2d924e4c6eb3ed736ded3762b9f250c44bd4fc7b703975463bcca18d7518e0588703616e686021b575b8f1193f0
+    # HEAD_REF RC_2_0
+# )
 
 vcpkg_configure_cmake(
     SOURCE_PATH ${SOURCE_PATH}

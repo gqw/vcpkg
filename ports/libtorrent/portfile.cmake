@@ -37,7 +37,7 @@ endif()
 
 message("clone begin...***************************************")
 
-set(GIT_URL "https://github.com/arvidn/libtorrent.git")
+set(GIT_URL "https://github.com/gqw/libtorrent.git")
 set(GIT_REV "af7a96c1df47fcc8fbe0d791c223b0ab8a7d2125")
 
 set(SOURCE_PATH ${CURRENT_BUILDTREES_DIR}/src/${PORT})

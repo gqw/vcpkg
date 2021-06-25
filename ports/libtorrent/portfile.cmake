@@ -13,6 +13,10 @@ if(VCPKG_TARGET_IS_WINDOWS)
 
     if(VCPKG_CRT_LINKAGE STREQUAL "static")
         set(_static_runtime ON)
+		set(_BUILD_SHARED_LIBS OFF)
+	else()
+		set(_static_runtime OFF)
+		set(_BUILD_SHARED_LIBS ON)
     endif()
 endif()
 
@@ -36,15 +40,21 @@ if("python" IN_LIST FEATURES)
 endif()
 
 message("clone begin...***************************************")
+# get_cmake_property(_variableNames VARIABLES)
+# list (SORT _variableNames)
+# foreach (_variableName ${_variableNames})
+    # message(STATUS "${_variableName}=${${_variableName}}")
+# endforeach()
 
 set(GIT_URL "https://github.com/gqw/libtorrent.git")
-set(GIT_REV "af7a96c1df47fcc8fbe0d791c223b0ab8a7d2125")
+set(GIT_REV "9b7846ddda32256f197a506eccd5e319c44b2d3d")
 
 set(SOURCE_PATH ${CURRENT_BUILDTREES_DIR}/src/${PORT})
 
 
 if(NOT EXISTS "${SOURCE_PATH}/.git")
-	message(STATUS "Cloning and fetching submodules ${GIT_URL} ${SOURCE_PATH}")
+	file(MAKE_DIRECTORY ${SOURCE_PATH})
+	message(STATUS ${GIT} clone --recurse-submodules ${GIT_URL} ${SOURCE_PATH})
 	vcpkg_execute_required_process(
 	  COMMAND ${GIT} clone --recurse-submodules ${GIT_URL} ${SOURCE_PATH}
 	  WORKING_DIRECTORY ${SOURCE_PATH}
@@ -57,9 +67,36 @@ if(NOT EXISTS "${SOURCE_PATH}/.git")
 	  WORKING_DIRECTORY ${SOURCE_PATH}
 	  LOGNAME checkout
 	)
+else()
+	message(STATUS "${GIT} pull")
+	vcpkg_execute_required_process(
+	  COMMAND ${GIT} checkout gqw 
+	  WORKING_DIRECTORY ${SOURCE_PATH}
+	  LOGNAME pull
+	)
+	vcpkg_execute_required_process(
+	  COMMAND ${GIT} pull
+	  WORKING_DIRECTORY ${SOURCE_PATH}
+	  LOGNAME pull
+	)
+	vcpkg_execute_required_process(
+	  COMMAND ${GIT} reset --hard ${GIT_REV}
+	  WORKING_DIRECTORY ${SOURCE_PATH}
+	  LOGNAME checkout
+	)
+	vcpkg_execute_required_process(
+	  COMMAND ${GIT} submodule init
+	  WORKING_DIRECTORY ${SOURCE_PATH}
+	  LOGNAME checkout
+	)
+	vcpkg_execute_required_process(
+	  COMMAND ${GIT} submodule update
+	  WORKING_DIRECTORY ${SOURCE_PATH}
+	  LOGNAME checkout
+	)
 endif()
 
-message("clone end!!!***************************************")
+
 
 # vcpkg_from_github(
     # OUT_SOURCE_PATH SOURCE_PATH
@@ -69,6 +106,15 @@ message("clone end!!!***************************************")
     # HEAD_REF RC_2_0
 # )
 
+# vcpkg_from_git(
+	# URL git@git.ot.netease.com:Components/libtorrent.git
+	# OUT_SOURCE_PATH SOURCE_PATH
+	# REPO Components/libtorrent.git
+	# REF 453b81ab6d9a9b0ae4cb47d8c38dd381074b5caa
+# )
+
+message("clone end!!!***************************************")
+
 vcpkg_configure_cmake(
     SOURCE_PATH ${SOURCE_PATH}
     PREFER_NINJA # Disable this option if project cannot be built with Ninja
@@ -76,7 +122,10 @@ vcpkg_configure_cmake(
         ${FEATURE_OPTIONS}
         -Dboost-python-module-name=${_boost-python-module-name}
         -Dstatic_runtime=${_static_runtime}
+		-DBUILD_SHARED_LIBS=${_BUILD_SHARED_LIBS}
         -DPython3_USE_STATIC_LIBS=ON
+		-DOPENSSL_ROOT_DIR="${CURRENT_INSTALLED_DIR}" 
+		-DBoost_INCLUDE_DIR="${CURRENT_INSTALLED_DIR}/include" 
 )
 
 vcpkg_install_cmake()
